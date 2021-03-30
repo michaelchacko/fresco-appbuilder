@@ -2,7 +2,7 @@
   "name": "react-flow-test",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://michaelchacko.github.io/fresco-appbuilder",
+  "homepage": "https://successlab.github.io/fresco-appbuilder",
   "dependencies": {
     "@popperjs/core": "^2.9.1",
     "@roomservice/react": "^1.0.3",
