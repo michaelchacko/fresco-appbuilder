@@ -2,12 +2,14 @@
   "name": "react-flow-test",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://michaelchacko.github.io/fresco-appbuilder",
   "dependencies": {
     "@popperjs/core": "^2.9.1",
     "@roomservice/react": "^1.0.3",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "gh-pages": "^3.1.0",
     "react": "^17.0.1",
     "react-contexify": "^5.0.0",
     "react-dom": "^17.0.1",
@@ -21,6 +23,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "deploy": "gh-pages -b gh-pages -d build",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
