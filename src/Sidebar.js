@@ -100,10 +100,25 @@ export default function Sidebar() {
   }
   const toggleProjectDrawer = useCallback(() => setVisible(visible => !visible), []);
 
+  //
+  // downloadApplication() adapted from StackOverflow answer: https://stackoverflow.com/a/44661948
+  //
+  const downloadApplication = useCallback(() => {
+    const element = document.createElement("a");
+    const file = new Blob([document.getElementById('frescoOutput').value], {type: 'text/plain'});
+    element.href = URL.createObjectURL(file);
+    element.download = "new_fresco_application.fre";
+    document.body.appendChild(element);
+    element.click();
+  }, []);
+
   return (
     <div style={drawerStyles}>
-      <textarea onChange={onChange} editable="false" spellCheck="false" style={textareaStyles} value={buildApp()} />
+      <textarea onChange={onChange} editable="false" spellCheck="false" id="frescoOutput" style={textareaStyles} value={buildApp()} />
       <div style={controlsStyles}>
+        <button onClick={downloadApplication} style={{ marginRight: 10 }}>
+          download
+        </button>
         <button onClick={toggleProjectDrawer}>{visible ? "hide" : "application"}</button>
       </div>
     </div>
