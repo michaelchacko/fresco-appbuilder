@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import buildElement from '../NodeHelper'
 import NodeTemplate from '../NodeTemplate';
+import { useProject } from "../context/ProjectContext";
 
 export function buildFM_match_port(buildProps) {
     return buildElement(
@@ -10,7 +11,7 @@ export function buildFM_match_port(buildProps) {
       parameters: ["80"], 
       outputs: ["bool"], 
       inputs: ["port"], 
-      setElements: buildProps.setElements}, 
+      }, 
       buildProps.position,
       );
 }
@@ -19,7 +20,7 @@ export function buildFM_match_port(buildProps) {
 const FM_match_port = ({ data, id, selected, nodeType }) => {
     const [port, setIP] = useState(data.parameters[0]);
 
-    const setElements = data.setElements;
+    const { setElements } = useProject();
     useEffect(() => {
       setElements((els) =>
         els.map((el) => {

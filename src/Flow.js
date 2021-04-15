@@ -42,28 +42,49 @@ export default function Flow() {
   };
 
   const contextMenu = useContextMenu();
-  const { elements, setElements} = useProject();
+  const { elements, setElements, transform} = useProject();
   const onConnect = (params) => setElements((els) => addEdge(params, els));
   const onElementsRemove = (elementsToRemove) =>
     setElements((els) => removeElements(elementsToRemove, els));
 
   const addNode = useCallback(
-    (buildFunction) => {
-      const addElement = (elementToAdd) => {
-        setElements((els) => els.concat([elementToAdd]));
-      }
+    (type, buildFunction) => {
+      console.log(type)
       const position = {
-        x: snapToGrid((contextMenu.getRect().left)),
-        y: snapToGrid((contextMenu.getRect().top)),
+        x: snapToGrid((contextMenu.getRect().left - transform.x) / transform.zoom),
+        y: snapToGrid((contextMenu.getRect().top - transform.y) / transform.zoom),
       };
       const buildProps = {
         position,
       }
-      addElement(buildFunction(buildProps))
+      const node = buildFunction(buildProps);
+      console.log("Node added");
+      setElements((elements) => [...elements, node]);
       contextMenu.hide();
     },
-    [contextMenu, setElements]
+    [contextMenu, setElements, transform]
   );
+
+  const onNodeDragStop = useCallback(
+    (event, draggedNode) => {
+      const position = {
+        x: snapToGrid(draggedNode.position.x),
+        y: snapToGrid(draggedNode.position.y),
+      };
+      setElements((els) =>
+        els.map((el) => {
+          if (el.id === draggedNode.id) {
+            // it's important that you create a new object here
+            // in order to notify react flow about the change
+            el.position = position;
+          }
+          return el;
+        })
+      );
+    },
+    [setElements]
+  );
+
 
   const onPaneClick = useCallback(() => {
     contextMenu.hide();
@@ -88,7 +109,7 @@ export default function Flow() {
             {item.items && (
               <ul className="contextMenu sub">
                 {item.items.map(subitem => (
-                  <li key={subitem.label} onClick={() => addNode(subitem.build)}>
+                  <li key={subitem.label} onClick={() => addNode(subitem.label, subitem.build)}>
                     {subitem.label}
                   </li>
                 ))}
@@ -180,6 +201,7 @@ export default function Flow() {
         onConnect={onConnect}
         onElementsRemove={onElementsRemove}
         onLoad={onLoad}
+        onNodeDragStop={onNodeDragStop}
         nodeTypes={nodeTypes}
         onPaneClick={onPaneClick}
         onPaneContextMenu={onPaneContextMenu}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import buildElement from '../NodeHelper'
 import NodeTemplate from '../NodeTemplate';
+import { useProject } from "../context/ProjectContext";
 
 export function buildFM_custom(buildProps) {
     return buildElement(
@@ -10,7 +11,7 @@ export function buildFM_custom(buildProps) {
       parameters: [], 
       outputs: ["output1"], 
       inputs: ["input1"], 
-      setElements: buildProps.setElements}, 
+      }, 
       buildProps.position,
       );
 }
@@ -19,7 +20,7 @@ export function buildFM_custom(buildProps) {
 const FM_custom = ({ data, id, selected, nodeType }) => {
     const [custom_parameters, setIP] = useState(data.parameters[0]);
 
-    const setElements = data.setElements;
+    const { setElements } = useProject();
     useEffect(() => {
       setElements((els) =>
         els.map((el) => {
