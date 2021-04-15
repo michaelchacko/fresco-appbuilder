@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import ReactFlow, {
   addEdge,
   Background,
@@ -7,7 +7,7 @@ import ReactFlow, {
 } from 'react-flow-renderer';
 import './provider.css';
 import { useContextMenu } from './context/ContextMenuContext';
-import { v4 as uuidv4 } from "uuid";
+import { useProject } from "./context/ProjectContext";
 
 /* HELP: Import new fresco modules here! */
 import FM_drop_flow, {buildFM_drop_flow} from './modules/FM_drop_flow';
@@ -23,16 +23,6 @@ const onElementClick = (event, element) => console.log();
 const onLoad = (reactFlowInstance) => console.log('flow loaded:', reactFlowInstance);
 export const GRID_SIZE = 10;
 
-const initialElements = [
-];
-
-const initialTransform = {
-  x: 0,
-  y: 0,
-  zoom: 1,
-};
-
-const initialId = uuidv4();
 function snapToGrid(position) {
   return Math.floor(position / GRID_SIZE) * GRID_SIZE;
 }
@@ -52,66 +42,21 @@ export default function Flow() {
   };
 
   const contextMenu = useContextMenu();
-  
-  /* useState will create a state variable called 'elements' 
-     that originally holds 'initialElements'. We update the state with 'setElements()' */
-  const [elements, setElements] = useState(initialElements);
-  const [transform, setTransform] = useState(initialTransform);
-  const [id, setId] = useState(initialId);
-
+  const { elements, setElements} = useProject();
   const onConnect = (params) => setElements((els) => addEdge(params, els));
   const onElementsRemove = (elementsToRemove) =>
     setElements((els) => removeElements(elementsToRemove, els));
-  const addElement = (elementToAdd) => {
-    setElements((els) => els.concat([elementToAdd]));
-  };
-
-  // Load project from URL
-  useEffect(() => {
-    const project = atob(window.location.hash.substr(1));
-    try {
-      const { elements, id, transform } = JSON.parse(project);
-      setElements(elements);
-      setId(id ?? uuidv4());
-      setTransform(transform);
-    } catch (e) {
-      console.error(e);
-    }
-  }, [setElements, setId, setTransform]);
-
-  // Store project in URL
-  useEffect(() => {
-    window.location.hash = btoa(
-      JSON.stringify({
-        elements: elements.map(element => ({ ...element, __rf: undefined })),
-        id,
-        transform,
-      })
-    );
-  }, [elements, id, transform]);
-
-  const onChange = useCallback(
-    (e) => {
-      try {
-        const { elements, id, transform } = JSON.parse(e.target.value);
-        setElements(elements);
-        setId(id ?? uuidv4());
-        setTransform(transform);
-      } catch (e) {
-        console.error(e);
-      }
-    },
-    [setElements, setId, setTransform]
-  );
 
   const addNode = useCallback(
     (buildFunction) => {
+      const addElement = (elementToAdd) => {
+        setElements((els) => els.concat([elementToAdd]));
+      }
       const position = {
         x: snapToGrid((contextMenu.getRect().left)),
         y: snapToGrid((contextMenu.getRect().top)),
       };
       const buildProps = {
-        setElements,
         position,
       }
       addElement(buildFunction(buildProps))

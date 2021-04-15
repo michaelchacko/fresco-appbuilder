@@ -1,6 +1,7 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useStoreState } from 'react-flow-renderer';
+import { useProject } from "./context/ProjectContext";
 
 const textareaStyles = {
   fontSize: 12,
@@ -44,22 +45,12 @@ export default function Sidebar() {
   const edges = useStoreState((store) => store.edges);
   const [visible, setVisible] = useState(false);
   const drawerStyles = useMemo(() => getDrawerStyles(visible), [visible]);
+  const { elements, id, setElements, setId, setTransform, transform } = useProject();
 
   function getNode(id) {
     return nodes.find(node => node.id === id);
   }
 
-  // eslint-disable-next-line
-  const onChange = useCallback(
-    (e) => {
-      try {
-        /* TODO: should we fill anything in here? */
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  );
-  
   function createNodeInfo(node, index) {
     let frescoInputs = []; // List of inputs for this node
     const incomingEdges = getIncomingEdges(node, edges) ?? [];
@@ -98,6 +89,52 @@ export default function Sidebar() {
       2
     );
   }
+
+  // Load project from URL
+  useEffect(() => {
+    const project = atob(window.location.hash.substr(1));
+    try {
+      const { elements, id, transform } = JSON.parse(project);
+      setElements(elements);
+      setId(id ?? uuidv4());
+      setTransform(transform);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [setElements, setId, setTransform]);
+
+  // Store project in URL
+  useEffect(() => {
+    window.location.hash = btoa(
+      JSON.stringify({
+        elements: elements.map(element => ({ ...element, __rf: undefined })),
+        id,
+        transform,
+      })
+    );
+  }, [elements, id, transform]);
+
+  const onChange = useCallback(
+    (e) => {
+      try {
+        const { elements, id, transform } = JSON.parse(e.target.value);
+        setElements(elements);
+        setId(id ?? uuidv4());
+        setTransform(transform);
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    [setElements, setId, setTransform]
+  );
+
+  const clearProject = useCallback(() => {
+    const defaultProject = getDefaultProject();
+    setElements(defaultProject.elements);
+    setId(defaultProject.id);
+    setTransform(defaultProject.transform);
+  }, [setElements, setId, setTransform]);
+
   const toggleProjectDrawer = useCallback(() => setVisible(visible => !visible), []);
 
   //
@@ -116,6 +153,9 @@ export default function Sidebar() {
     <div style={drawerStyles}>
       <textarea onChange={onChange} editable="false" spellCheck="false" id="frescoOutput" style={textareaStyles} value={buildApp()} />
       <div style={controlsStyles}>
+        <button onClick={clearProject} style={{ marginRight: 20 }}>
+          clear
+        </button>
         <button onClick={downloadApplication} style={{ marginRight: 10 }}>
           download
         </button>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import buildElement from '../NodeHelper'
 import NodeTemplate from '../NodeTemplate';
+import { useProject } from "../context/ProjectContext";
 
 export function buildFM_match_ip(buildProps) {
     return buildElement(
@@ -10,7 +11,7 @@ export function buildFM_match_ip(buildProps) {
       parameters: ["0.0.0.0"], 
       outputs: ["bool"], 
       inputs: ["ip_address"], 
-      setElements: buildProps.setElements}, 
+      }, 
       buildProps.position,
       );
 }
@@ -20,7 +21,7 @@ const FM_match_ip = ({ data, id, selected, nodeType }) => {
     const [ipAddress, setIP] = useState(data.parameters[0]);
     const [event, setEvent] = useState(data.event);
 
-    const setElements = data.setElements;
+    const { setElements } = useProject();
     useEffect(() => {
       setElements((els) =>
         els.map((el) => {
