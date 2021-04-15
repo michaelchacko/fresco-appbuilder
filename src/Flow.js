@@ -33,7 +33,6 @@ const initialTransform = {
 };
 
 const initialId = uuidv4();
-
 function snapToGrid(position) {
   return Math.floor(position / GRID_SIZE) * GRID_SIZE;
 }
